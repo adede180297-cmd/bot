@@ -12,7 +12,7 @@ from config_and_logic import (
     LUONG_FUNNY, ANCOM_FUNNY, MOOD_FUNNY
 )
 
-TOKEN = "YOUR_TOKEN_HERE"
+TOKEN = "8324202114:AAGJM7kfxiKvY5qTqz751elPHz_Prf0otZ8"
 
 # ========================= BOT HANDLERS =========================
 
@@ -92,3 +92,4 @@ if __name__ == "__main__":
     )
 
     app.run(host="0.0.0.0", port=10000)
+
