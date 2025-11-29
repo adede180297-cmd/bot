@@ -6,7 +6,7 @@ from config_and_logic import (
     XUONGCA_FUNNY, LUONG_FUNNY, ANCOM_FUNNY
 )
 
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TOKEN = "8324202114:AAGJM7kfxiKvY5qTqz751elPHz_Prf0otZ8"
 
 # ================== HANDLERS ==================
 
@@ -131,3 +131,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
