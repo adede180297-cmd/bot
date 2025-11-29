@@ -11,7 +11,7 @@ from config_and_logic import (
 )
 
 # ================== TOKEN ==================
-TOKEN = "YOUR_TOKEN_HERE"
+TOKEN = "8324202114:AAGJM7kfxiKvY5qTqz751elPHz_Prf0otZ8"
 
 # ================== MÚI GIỜ VIỆT NAM ==================
 VN = pytz.timezone("Asia/Ho_Chi_Minh")
@@ -169,3 +169,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
