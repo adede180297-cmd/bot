@@ -11,7 +11,7 @@ from config_and_logic import (
 )
 
 # ====== TOKEN BOT ======
-TOKEN = "YOUR_TOKEN_HERE"  # ⚠️ đổi token
+TOKEN = "8324202114:AAGJM7kfxiKvY5qTqz751elPHz_Prf0otZ8"  # ⚠️ đổi token
 
 
 def mood():
@@ -168,3 +168,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
