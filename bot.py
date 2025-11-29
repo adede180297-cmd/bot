@@ -1,9 +1,7 @@
-from flask import Flask, request
-from telegram import Update
 from telegram.ext import Application, CommandHandler
 from datetime import datetime, timedelta
 from random import choice
-import asyncio
+import pytz
 
 from config_and_logic import (
     pick, get_name,
@@ -12,17 +10,27 @@ from config_and_logic import (
     LUONG_FUNNY, ANCOM_FUNNY, MOOD_FUNNY
 )
 
+# ================== TOKEN ==================
 TOKEN = "YOUR_TOKEN_HERE"
 
-# ========================= BOT HANDLERS =========================
+# ================== MÚI GIỜ VIỆT NAM ==================
+VN = pytz.timezone("Asia/Ho_Chi_Minh")
+
+def now_vn():
+    return datetime.now(VN)
 
 def mood():
     return choice(MOOD_FUNNY)
 
+
+# ====================================================================
+# ======================== LỆNH TẾT ==================================
+# ====================================================================
 async def countdown_tet(update, context):
     name = get_name(update)
-    now = datetime.now()
+    now = now_vn()
     diff = target_date_tet - now
+
     days = diff.days
     h = diff.seconds // 3600
     m = (diff.seconds % 3600) // 60
@@ -39,10 +47,15 @@ async def countdown_tet(update, context):
 
     await update.message.reply_text(msg)
 
+
+# ====================================================================
+# ======================== LỆNH NOEL =================================
+# ====================================================================
 async def countdown_noel(update, context):
     name = get_name(update)
-    now = datetime.now()
+    now = now_vn()
     diff = target_date_noel - now
+
     days = diff.days
     h = diff.seconds // 3600
     m = (diff.seconds % 3600) // 60
@@ -58,37 +71,101 @@ async def countdown_noel(update, context):
 
     await update.message.reply_text(msg)
 
-# Add các handler khác của bạn vào đây…
 
-# ========================= FLASK SERVER =========================
+# ====================================================================
+# ======================= LỆNH XUỐNG CA ===============================
+# ====================================================================
+async def countdown_xuongca(update, context):
+    name = get_name(update)
+    now = now_vn()
 
-app = Flask(__name__)
+    end = now.replace(hour=20, minute=0, second=0, microsecond=0)
+    if now > end:
+        end += timedelta(days=1)
 
-@app.route("/")
-def home():
-    return "Bot is running!"
+    diff = end - now
 
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(), application.bot)
-    asyncio.run(application.process_update(update))
-    return "OK"
+    h = diff.seconds // 3600
+    m = (diff.seconds % 3600) // 60
+    s = diff.seconds % 60
 
-# ========================= RUN BOT =========================
-
-application = Application.builder().token(TOKEN).build()
-
-application.add_handler(CommandHandler("countdown", countdown_tet))
-application.add_handler(CommandHandler("noel", countdown_noel))
-# … thêm các lệnh khác
-
-if __name__ == "__main__":
-    # Set webhook cho Telegram
-    import requests
-    SERVER_URL = "https://YOUR_RENDER_URL"  # đổi link Render của bạn
-
-    requests.get(
-        f"https://api.telegram.org/bot{TOKEN}/setWebhook?url={SERVER_URL}/{TOKEN}"
+    msg = (
+        "🕗 Đếm ngược đến giờ xuống ca (20:00) nèee! 🕗\n\n"
+        f"{mood()}\n"
+        f"{name}, {pick(XUONGCA_FUNNY, name)}\n\n"
+        f"⏳ Còn: {h} giờ {m} phút {s} giây\n"
+        "🏠 Chuẩn bị được về rồi đó!\n"
+        "✨ Chúc bạn xuống ca thật nhẹ nhàng!"
     )
 
-    app.run(host="0.0.0.0", port=10000)
+    await update.message.reply_text(msg)
+
+
+# ====================================================================
+# ======================== LỆNH LƯƠNG ================================
+# ====================================================================
+async def countdown_luong(update, context):
+    name = get_name(update)
+    now = now_vn()
+
+    payday = now.replace(day=16, hour=0, minute=0)
+    if now > payday:
+        payday = payday.replace(month=payday.month % 12 + 1)
+        if payday.month == 1:
+            payday = payday.replace(year=payday.year + 1)
+
+    diff = payday - now
+
+    days = diff.days
+    h = diff.seconds // 3600
+    m = (diff.seconds % 3600) // 60
+    s = diff.seconds % 60
+
+    msg = (
+        "💰 Đếm ngược ngày nhận lương nèee! 💰\n\n"
+        f"{mood()}\n"
+        f"{name}, {pick(LUONG_FUNNY, name)}\n\n"
+        f"⏳ Còn: {days} ngày {h} giờ {m} phút {s} giây\n"
+        f"📅 Lương về ngày: {payday.strftime('%d/%m/%Y')}\n"
+        "✨ Hy vọng tháng này ví bạn không còn buồn nữa!"
+    )
+
+    await update.message.reply_text(msg)
+
+
+# ====================================================================
+# ========================= LỆNH /ANCOM ===============================
+# ====================================================================
+async def ancom(update, context):
+    name = get_name(update)
+    funny = pick(ANCOM_FUNNY, name)
+
+    msg = (
+        "🍚 Tới giờ ăn cơm rồi nèeeee! 🍚\n\n"
+        f"{mood()}\n"
+        f"{name}, {funny}\n"
+        "Nhớ đi ăn liền nha, để bụng đói buồn lắm 😭\n"
+        "✨ Chúc bạn ăn ngon miệng!"
+    )
+
+    await update.message.reply_text(msg)
+
+
+# ====================================================================
+# ============================== MAIN =================================
+# ====================================================================
+def main():
+    app = Application.builder().token(TOKEN).build()
+
+    app.add_handler(CommandHandler("countdown", countdown_tet))
+    app.add_handler(CommandHandler("noel", countdown_noel))
+    app.add_handler(CommandHandler("xuongca", countdown_xuongca))
+    app.add_handler(CommandHandler("luong", countdown_luong))
+    app.add_handler(CommandHandler("ancom", ancom))
+
+    print("Bot đang chạy…")
+    app.run_polling()
+
+
+if __name__ == "__main__":
+    main()
